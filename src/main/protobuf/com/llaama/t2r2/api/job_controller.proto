@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.api;
+
+import "kalix/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "com/llaama/t2r2/api/job_api.proto";
+
+message AddNewJob {
+  string jobDefinitionId = 1;
+  string name = 2;
+  string description = 3;
+  string organization = 4; // who started this job
+  string ownerEmail = 5;
+  int32 timeout = 6;   // if defined, in seconds - will seal the Job automatically after it's expired
+  string clonedFrom = 7;
+}
+
+message NewJobCreated {
+  string jobId = 1;
+  string name = 2;
+}
+
+service NewJobAction {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc CreateNewJob(AddNewJob) returns (NewJobCreated);
+}
+

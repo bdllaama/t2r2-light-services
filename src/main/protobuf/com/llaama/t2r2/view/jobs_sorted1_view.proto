@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.view;
+
+import "com/llaama/t2r2/domain/job_domain.proto";
+import "com/llaama/t2r2/api/job_api.proto";
+
+import "kalix/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+service QueryJobsSorted {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+  rpc GetSortedJobs(google.protobuf.Empty) returns(api.AllJobs) {
+    option (kalix.method).view.query = {
+      query: "SELECT * AS jobs FROM jobs where deleted = false AND date IS NOT NULL ORDER BY date"
+    };
+    option (google.api.http).get = "/jobs_sorted";
+  }
+}

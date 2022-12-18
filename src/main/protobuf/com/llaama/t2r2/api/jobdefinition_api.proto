@@ -1,0 +1,364 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.api;
+
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message JobDefinition {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string shortName = 2;
+  string name = 3;
+  string organization = 4;
+  string buildVersion = 5;
+  string ownerEmail = 6;
+  google.protobuf.Timestamp date = 7;
+  bool sealed = 8;
+  string description = 9;
+  string consumes = 10;
+  string produces = 11;
+  string releaseNotes = 12;
+  repeated JobDefinitionProperty definitionProperties = 13;
+  repeated OptionParameter optionParameters = 14;
+  repeated IntParameter intParameters = 15;
+  repeated FloatParameter floatParameters = 16;
+  repeated TextParameter textParameters = 17;
+  repeated JobDefinitionDigest definitionDigests = 18;
+  repeated ContainerLocation containers = 19;
+  repeated MetaData metaData = 20;
+}
+
+message JobDefinitionProperty {
+  string key = 1;
+  string value = 2;
+}
+
+message JobDefinitionDigest {
+  string key = 1;
+  string digest = 2;
+}
+
+message OptionParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  repeated string options = 5;
+  bool allowsNew = 6;
+  string defaultValue = 7;
+}
+
+message IntParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  int64 minValue = 5;
+  int64 maxValue = 6;
+  int64 defaultValue = 7;
+}
+
+message FloatParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  double minValue = 5;
+  double maxValue = 6;
+  double defaultValue = 7;
+}
+
+message TextParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  string defaultValue = 5;
+}
+
+message ContainerLocation {
+  string server = 1;
+  string repository = 2;
+  string tag = 3;
+  string imageId = 4;
+  string comments = 5;
+  string user = 6;
+}
+
+message MetaData {
+  string key = 1;
+  string metaData = 2;
+  string user = 3;
+}
+
+message AllJobDefinitions {
+  repeated JobDefinition jobDefinitions = 1;
+}
+
+message AddJobDefinition {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string name = 2;
+  string ownerEmail = 3;
+  google.protobuf.Timestamp date = 4;
+  string description = 5;
+  string consumes = 6;
+  string produces = 7;
+  string releaseNotes = 8;
+}
+
+message AddJobDefinitionProperty {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string value = 3;
+}
+
+message RemoveJobDefinitionProperty {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddJobDefinitionDigest {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string digest = 3;
+}
+
+message RemoveJobDefinitionDigest {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddTextParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  TextParameter textParameter = 2;
+}
+
+message RemoveTextParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddIntParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  IntParameter intParameter = 2;
+}
+
+message RemoveIntParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddOptionParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  OptionParameter optionParameter = 2;
+}
+
+message RemoveOptionParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddFloatParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  FloatParameter floatParameter = 2;
+}
+
+message RemoveFloatParam {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddMetaData {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  MetaData metaData = 2;
+}
+
+message AddContainer {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  ContainerLocation container = 2;
+}
+
+message RemoveMetaData {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message RemoveContainer {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message SealJobDefinition {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+}
+
+message GetJobDefinition {
+  string jobDefinitionId = 1 [(kalix.field).entity_key = true];
+}
+
+service JobDefinitionService {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "com.llaama.t2r2.domain.JobDefinition"
+      entity_type: "job_definitions"
+      state: "com.llaama.t2r2.domain.JobDefinitionState"
+      events: [
+        "com.llaama.t2r2.domain.JobDefinitionAdded",
+        "com.llaama.t2r2.domain.JobDefinitionPropertyAdded",
+        "com.llaama.t2r2.domain.JobDefinitionPropertyRemoved",
+        "com.llaama.t2r2.domain.JobDefinitionDigestAdded",
+        "com.llaama.t2r2.domain.JobDefinitionDigestRemoved",
+        "com.llaama.t2r2.domain.IntParameterAdded",
+        "com.llaama.t2r2.domain.IntParameterRemoved",
+        "com.llaama.t2r2.domain.OptionParameterAdded",
+        "com.llaama.t2r2.domain.OptionParameterRemoved",
+        "com.llaama.t2r2.domain.TextParameterAdded",
+        "com.llaama.t2r2.domain.TextParameterRemoved",
+        "com.llaama.t2r2.domain.FloatParameterAdded",
+        "com.llaama.t2r2.domain.FloatParameterRemoved",
+        "com.llaama.t2r2.domain.MetaDataAdded",
+        "com.llaama.t2r2.domain.MetaDataRemoved",
+        "com.llaama.t2r2.domain.ContainerAdded",
+        "com.llaama.t2r2.domain.ContainerRemoved",
+        "com.llaama.t2r2.domain.JobDefinitionSealed"]
+    }
+  };
+
+  rpc NewDefinition(AddJobDefinition) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/new"
+      body: "*"
+    };
+  }
+
+  rpc AddProperty(AddJobDefinitionProperty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/properties/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveProperty (RemoveJobDefinitionProperty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/properties/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddDigest(AddJobDefinitionDigest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/digests/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveDigest (RemoveJobDefinitionDigest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/digests/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddOptionParameter(AddOptionParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/options/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveOptionParameter (RemoveOptionParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/options/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddIntParameter(AddIntParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/integers/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveIntParameter (RemoveIntParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/integers/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddFloatParameter(AddFloatParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/floats/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveFloatParameter (RemoveFloatParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/floats/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddTextParameter(AddTextParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/texts/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveTextParameter (RemoveTextParam) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/texts/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddMeta(AddMetaData) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/meta/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveMeta(RemoveMetaData) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/meta/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddContainerInfo(AddContainer) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/container/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveContainerInfo(RemoveContainer) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/container/remove"
+      body: "*"
+    };
+  }
+
+  rpc Seal(SealJobDefinition) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/definitions/{jobDefinitionId}/seal"
+      body: "*"
+    };
+  }
+
+  rpc GetDefinition(GetJobDefinition) returns (JobDefinition) {
+    option (google.api.http) = {
+      get: "/definitions/{jobDefinitionId}"
+      additional_bindings: {
+        get: "/definitions/{jobDefinitionId}/properties"
+        response_body: "definitionProperties"
+      }
+    };
+  }
+}

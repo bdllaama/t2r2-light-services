@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.domain;
+
+import "google/protobuf/timestamp.proto";
+
+/**
+Current state of Job, for snapshot
+Equivalent to previously called Transform
+ */
+message JobState {
+  string jobId = 1;
+  string jobDefinitionId = 2;
+  string name = 3;
+  string description = 4;
+  string organization = 5; // who started this job
+  string ownerEmail = 6;
+  google.protobuf.Timestamp date = 7; // last update date
+  google.protobuf.Timestamp runStart = 8; // when the run started
+  google.protobuf.Timestamp runEnd = 9; // when the run was completed
+  JobStatus jobStatus = 10;
+  int32 timeout = 11;   // if defined, in seconds - will seal the Job automatically after it's expired
+  bool sealed = 12;
+  string jobDigest = 13;
+  string clonedFrom = 14;
+  repeated JobParameter jobParameters = 15;
+  repeated JobProperty jobProperties = 16;
+  repeated string parentJobs = 17;
+  repeated RelatedDigest relatedDigests = 18;
+  repeated JobMetaData jobMetaData = 19;
+  bool deleted = 20;
+}
+
+enum JobStatus {
+  NEW_JOB = 0;
+  RUNNING = 1;
+  SUCCESS = 2;
+  FAILED = 3;
+  UNKNOWN = 4;
+}
+
+message RelatedDigest {
+  string key = 1;
+  string digest = 2;
+}
+
+message JobParameter {
+  string key = 1;
+  string value = 2;
+}
+
+message JobProperty {
+  string key = 1;
+  string value = 2;
+}
+
+message JobMetaData {
+  string key = 1; // in hierarchy "parent.branch.child", no space, . as separators
+  string MetaData = 2;
+}
+
+message JobAdded {
+  string jobId = 1;
+  string jobDefinitionId = 2;
+  string name = 3;
+  string description = 4;
+  string organization = 5; // who started this job
+  string ownerEmail = 6;
+  int32 timeout = 7;
+  string clonedFrom = 8;
+  google.protobuf.Timestamp date = 9;
+}
+
+message JobPropertyAdded {
+  JobProperty jobProperty = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobPropertyRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobMetaDataAdded {
+  JobMetaData jobMetaData = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobMetaDataRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message ParentJobAdded {
+  string parentJobId = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message ParentJobRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobParameterAdded {
+  JobParameter jobParameter = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobParameterRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobDigestSet {
+  string jobDigest = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message RelatedDigestAdded {
+  RelatedDigest relatedDigest = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message RelatedDigestRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobSealed {
+  google.protobuf.Timestamp date = 1;
+}
+
+message JobStatusChanged {
+  JobStatus status = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message StartRunDefined {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message EndRunDefined {
+  google.protobuf.Timestamp end = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobDeleted {
+  google.protobuf.Timestamp date = 1;
+}
+
+message JobRestored {
+  google.protobuf.Timestamp date = 1;
+}

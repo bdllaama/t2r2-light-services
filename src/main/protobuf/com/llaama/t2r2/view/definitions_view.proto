@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.view;
+
+import "com/llaama/t2r2/domain/jobdefinition_domain.proto";
+import "com/llaama/t2r2/api/jobdefinition_api.proto";
+
+import "kalix/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+service QueryDefinitions {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc ProcessJobDefinitionAdded(domain.JobDefinitionAdded) returns (api.JobDefinition)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "job_definitions"
+    };
+    option (kalix.method).view.update = {
+      table: "job_definitions"
+      transform_updates: true
+    };
+  }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.JobDefinition)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "job_definitions"
+    };
+    option (kalix.method).view.update = {
+      table: "job_definitions"
+      transform_updates: true
+    };
+  }
+
+  //todo  for streamed version we need to create another view !
+//  rpc GetDefinitionsStream(google.protobuf.Empty) returns(stream api.JobDefinition) {
+//    option (kalix.method).view.query = {
+//      query: "SELECT * FROM job_definitions"
+//    };
+//    option (google.api.http).get = "/definitions_stream";
+//  }
+
+  rpc GetDefinitions(google.protobuf.Empty) returns(api.AllJobDefinitions) {
+    option (kalix.method).view.query = {
+      query: "SELECT * AS jobDefinitions FROM job_definitions"
+    };
+    option (google.api.http).get = "/definitions";
+  }
+}

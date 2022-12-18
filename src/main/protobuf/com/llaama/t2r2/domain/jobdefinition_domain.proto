@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.domain;
+
+import "google/protobuf/timestamp.proto";
+
+/**
+current state of JobDefinition, for snapshot
+ */
+message JobDefinitionState {
+  string jobDefinitionId = 1;
+  string shortName = 2;
+  string name = 3;
+  string organization = 4;
+  string buildVersion = 5;
+  string ownerEmail = 6;
+  google.protobuf.Timestamp date = 7; // last update date
+  bool sealed = 8;
+  string description = 9;
+  string consumes = 10;
+  string produces = 11;
+  string releaseNotes = 12;
+  repeated JobDefinitionProperty definitionProperties = 13;
+  repeated OptionParameter optionParameters = 14;
+  repeated IntParameter intParameters = 15;
+  repeated FloatParameter floatParameters = 16;
+  repeated TextParameter textParameters = 17;
+  repeated JobDefinitionDigest definitionDigests = 18;
+  repeated ContainerLocation containers = 19;
+  repeated MetaData metaData = 20;
+}
+
+message JobDefinitionProperty {
+  string key = 1;
+  string value = 2;
+}
+
+message JobDefinitionDigest {
+  string key = 1;
+  string digest = 2;
+}
+
+message OptionParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  repeated string options = 5;
+  bool allowsNew = 6;
+  string defaultValue = 7;
+}
+
+message IntParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  int64 minValue = 5;
+  int64 maxValue = 6;
+  int64 defaultValue = 7;
+}
+
+message FloatParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  double minValue = 5;
+  double maxValue = 6;
+  double defaultValue = 7;
+}
+
+message TextParameter {
+  string key = 1;
+  int32 order = 2;
+  string name = 3;
+  string hint = 4;
+  string defaultValue = 5;
+}
+
+message ContainerLocation {
+  string id = 1;
+  string server = 2;
+  string repository = 3;
+  string tag = 4;
+  string imageId = 5;
+  string user = 6;      // email for now
+  string comments = 7;
+  google.protobuf.Timestamp date = 8;
+}
+
+message MetaData {
+  string key = 1; // in form of word.word.word...
+  string metaData = 2;
+  string user = 3;
+  google.protobuf.Timestamp date = 7;
+}
+
+message JobDefinitionAdded {
+  string jobDefinitionId = 1;
+  string shortName = 2;
+  string name = 3;
+  string organization = 4;
+  string buildVersion = 5;
+  string ownerEmail = 6;
+  google.protobuf.Timestamp date = 7;
+  string description = 8;
+  string consumes = 9;
+  string produces = 10;
+  string releaseNotes = 11;
+}
+
+message JobDefinitionPropertyAdded {
+  JobDefinitionProperty jobDefinitionProp = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobDefinitionPropertyRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobDefinitionDigestAdded {
+  JobDefinitionDigest jobDefinitionDigest = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobDefinitionDigestRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message OptionParameterAdded {
+  OptionParameter optionParameter = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message IntParameterAdded {
+  IntParameter intParameter = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message FloatParameterAdded {
+  FloatParameter floatParameter = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message TextParameterAdded {
+  TextParameter textParameter = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message MetaDataAdded {
+  MetaData metaData = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message ContainerAdded {
+  ContainerLocation container = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message TextParameterRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message OptionParameterRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message IntParameterRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message FloatParameterRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message MetaDataRemoved {
+  string key = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message ContainerRemoved {
+  string id = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message JobDefinitionSealed {
+  google.protobuf.Timestamp date = 1;
+}

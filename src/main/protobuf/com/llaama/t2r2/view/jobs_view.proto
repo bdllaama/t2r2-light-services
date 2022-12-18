@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.view;
+
+import "com/llaama/t2r2/domain/job_domain.proto";
+import "com/llaama/t2r2/api/job_api.proto";
+
+import "kalix/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+service QueryJobs {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc ProcessJobAdded(domain.JobAdded) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessStartRunDefined(domain.StartRunDefined) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessEndRunDefined(domain.EndRunDefined) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessJobStatusChanged(domain.JobStatusChanged) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessJobDeleted(domain.JobDeleted) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+  rpc ProcessJobRestored(domain.JobRestored) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.JobForView)  {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "jobs"
+    };
+    option (kalix.method).view.update = {
+      table: "jobs"
+      transform_updates: true
+    };
+  }
+
+//  //todo  for streamed version we need to create another view !
+//  rpc GetJobsStream(google.protobuf.Empty) returns(stream api.JobForView) {
+//    option (kalix.method).view.query = {
+//      query: "SELECT * FROM jobs"
+//    };
+//    option (google.api.http).get = "/jobs_stream";
+//  }
+
+  rpc GetJobs(google.protobuf.Empty) returns(api.AllJobs) {
+    option (kalix.method).view.query = {
+      query: "SELECT * AS jobs FROM jobs where deleted = false"
+    };
+    option (google.api.http).get = "/jobs";
+  }
+}

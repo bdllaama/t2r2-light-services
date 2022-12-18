@@ -1,0 +1,356 @@
+syntax = "proto3";
+
+package com.llaama.t2r2.api;
+
+import "kalix/annotations.proto";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "com/llaama/t2r2/domain/job_domain.proto";
+
+
+enum JobStatus {
+  NEW_JOB = 0;
+  RUNNING = 1;
+  SUCCESS = 2;
+  FAILED = 3;
+  UNKNOWN = 4;
+}
+
+message Job {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string jobDefinitionId = 2;
+  string name = 3;
+  string description = 4;
+  string organization = 5; // who started this job
+  string ownerEmail = 6;
+  google.protobuf.Timestamp date = 7; // last update date
+  google.protobuf.Timestamp runStart = 8; // when the run started
+  google.protobuf.Timestamp runEnd = 9; // when the run was completed
+  JobStatus jobStatus = 10;
+  int32 timeout = 11;   // if defined, in seconds - will seal the Job automatically after it's expired
+  bool sealed = 12;
+  string jobDigest = 13;
+  string clonedFrom = 14;
+  repeated JobParameter jobParameters = 15; // split up in text, float, int...
+  repeated JobProperty jobProperties = 16;
+  repeated string parentJobs = 17;
+  repeated RelatedDigest relatedDigests = 18;
+  repeated JobMetaData jobMetaData = 19;
+  int64 duration = 20;
+  bool deleted = 21;
+}
+
+message JobForView {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string jobDefinitionId = 2;
+  string name = 3;
+  string description = 4;
+  string organization = 5; // who started this job
+  string ownerEmail = 6;
+  string clonedFrom = 7;
+  google.protobuf.Timestamp date = 8; // last update date
+  JobStatus jobStatus = 9;
+  int64 duration = 10;
+  bool deleted = 11;
+}
+
+message JobModifInfo {
+  string jobId = 1;
+  string name = 2;
+  string info = 3;
+}
+
+message JobParameter {
+  string key = 1;
+  string value = 2;
+}
+
+message JobProperty {
+  string key = 1;
+  string value = 2;
+}
+
+message RelatedDigest {
+  string key = 1;
+  string digest = 2;
+}
+
+message JobMetaData {
+  string key = 1; // in hierarchy "parent.branch.child", no space, . as separators
+  string metaData = 2;
+  string user = 3;
+}
+
+message AllJobs {
+  repeated JobForView jobs = 1;
+}
+
+// add job can be used to set all listed parameters.
+// once the job is started (runStart set and/or status to run, then it cannot be changed anymore
+message AddJobWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string jobDefinitionId = 2;
+  string name = 3;
+  string description = 4;
+  string organization = 5; // who started this job
+  string ownerEmail = 6;
+  int32 timeout = 7;   // if defined, in seconds - will seal the Job automatically after it's expired
+  string clonedFrom = 8;
+}
+
+message SetStartDateWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  google.protobuf.Timestamp runStart = 2; // when the run started
+}
+
+message SetEndDateWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  google.protobuf.Timestamp runEnd = 2; // when the run ended
+}
+
+message SetStatusWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  JobStatus jobStatus = 2;
+}
+
+message SetDigestWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string jobDigest = 2;
+}
+
+message RemoveDigestWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+}
+
+message AddParameterWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string parameter = 3;
+}
+
+message RemoveParameterWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddPropertyWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string property = 3;
+}
+
+message RemovePropertyWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddMetaDataWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string metaData = 3;
+}
+
+message RemoveMetaDataWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddParentWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string parent = 3;
+}
+
+message RemoveParentWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message AddRelatedDigestWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+  string relatedDigest = 3;
+}
+
+message RemoveRelatedDigestWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+  string key = 2;
+}
+
+message GetJobWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+}
+
+message SealJobWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+}
+
+message DeleteJobWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+}
+
+message RestoreJobWrap {
+  string jobId = 1 [(kalix.field).entity_key = true];
+}
+
+service JobService {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "com.llaama.t2r2.domain.Job"
+      entity_type: "jobs"
+      state: "com.llaama.t2r2.domain.JobState"
+      events: [
+        "com.llaama.t2r2.domain.JobAdded",
+        "com.llaama.t2r2.domain.JobPropertyAdded",
+        "com.llaama.t2r2.domain.ParentJobAdded",
+        "com.llaama.t2r2.domain.JobParameterAdded",
+        "com.llaama.t2r2.domain.RelatedDigestAdded",
+        "com.llaama.t2r2.domain.JobMetaDataAdded",
+        "com.llaama.t2r2.domain.JobPropertyRemoved",
+        "com.llaama.t2r2.domain.ParentJobRemoved",
+        "com.llaama.t2r2.domain.JobParameterRemoved",
+        "com.llaama.t2r2.domain.RelatedDigestRemoved",
+        "com.llaama.t2r2.domain.JobMetaDataRemoved",
+        "com.llaama.t2r2.domain.JobDigestSet",
+        "com.llaama.t2r2.domain.JobSealed",
+        "com.llaama.t2r2.domain.JobDeleted",
+        "com.llaama.t2r2.domain.JobRestored",
+        "com.llaama.t2r2.domain.JobStatusChanged",
+        "com.llaama.t2r2.domain.StartRunDefined",
+        "com.llaama.t2r2.domain.EndRunDefined"]
+    }
+  };
+
+  rpc NewJob(AddJobWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/new"
+      body: "*"
+    };
+  }
+
+  rpc AddProperty(AddPropertyWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/properties/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveProperty(RemovePropertyWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/properties/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddParameter(AddParameterWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/parameters/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveParameter(RemoveParameterWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/parameters/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddMetaData(AddMetaDataWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/meta/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveMetaData(RemoveMetaDataWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/meta/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddDigest(SetDigestWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/digests/set"
+      body: "*"
+    };
+  }
+
+  rpc RemoveDigest(RemoveDigestWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/digests/remove"
+      body: "*"
+    };
+  }
+
+  rpc AddRelatedDigest(AddRelatedDigestWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/related_digests/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveRelatedDigest(RemoveRelatedDigestWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/related_digests/remove"
+      body: "*"
+    };
+  }
+
+  rpc Seal(SealJobWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/seal"
+      body: "*"
+    };
+  }
+
+  rpc Delete(DeleteJobWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/delete"
+      body: "*"
+    };
+  }
+
+  rpc Restore(RestoreJobWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/restore"
+      body: "*"
+    };
+  }
+
+  rpc SetStartDate(SetStartDateWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/set_start_date"
+      body: "*"
+    };
+  }
+
+  rpc SetEndDate(SetEndDateWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/set_end_date"
+      body: "*"
+    };
+  }
+
+  rpc SetStatus(SetStatusWrap) returns (JobModifInfo) {
+    option (google.api.http) = {
+      post: "/jobs/{jobId}/set_status"
+      body: "*"
+    };
+  }
+
+  rpc RetrieveJob(GetJobWrap) returns (Job) {
+    option (google.api.http) = {
+      get: "/jobs/{jobId}"
+//      additional_bindings: {
+//        get: "/jobs/{jobId}/properties"
+//        response_body: "jobProperties"
+//      }
+    };
+  }
+}
+
